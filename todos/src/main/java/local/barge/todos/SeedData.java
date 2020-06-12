@@ -2,6 +2,7 @@ package local.barge.todos;
 
 import local.barge.todos.models.User;
 import local.barge.todos.models.Todo;
+import local.barge.todos.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

@@ -30,21 +30,21 @@ public interface UserRepository extends CrudRepository<User, Long>
      */
     List<User> findByUsernameContainingIgnoreCase(String name);
 
-    @Query(value = "SELECT COUNT(*) as count FROM userroles WHERE userid = :userid AND roleid = :roleid", nativeQuery = true)
-    JustTheCount checkUserRolesCombo(long userid, long roleid);
+    @Query(value = "SELECT COUNT(*) as count FROM usertodos WHERE userid = :userid AND todoid = :todoid", nativeQuery = true)
+    JustTheCount checkUserTodosCompleted(long userid, long todoid);
 
     @Transactional
     @Modifying
-    @Query(value = "DELETE FROM userroles WHERE userid = :userid AND roleid = :roleid", nativeQuery = true)
-    void deleteUserRoles(long userid, long roleid);
+    @Query(value = "DELETE FROM usertodos WHERE userid = :userid AND todoid = :todoid", nativeQuery = true)
+    void deleteUserRoles(long userid, long todoid);
 
     @Transactional
     @Modifying
-    @Query(value = "INSERT INTO userroles(userid, roleid, created_by, created_date, last_modified_by, last_modified_date) VALUES (:userid, :roleid, :uname, CURRENT_TIMESTAMP, :uname, CURRENT_TIMESTAMP)",
+    @Query(value = "INSERT INTO usertodos(userid, todoid, created_by, created_date, last_modified_by, last_modified_date) VALUES (:userid, :todoid, :uname, CURRENT_TIMESTAMP, :uname, CURRENT_TIMESTAMP)",
             nativeQuery = true)
     void insertUserRoles(
             String uname,
             long userid,
-            long roleid);
+            long todoid);
 
 }

@@ -14,15 +14,15 @@ public interface TodoService
 
     List<Todo> findAll();
 
-    Todo findUseremailById(long id);
+    Todo findTodoById(long id);
 
     void delete(long id);
 
     Todo update(
-        long useremailid,
-        String emailaddress);
+        long todoid,
+        String description);
 
     Todo save(
         long userid,
-        String emailaddress);
+        String description);
 }

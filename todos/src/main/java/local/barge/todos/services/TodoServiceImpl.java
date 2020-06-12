@@ -45,7 +45,7 @@ public class TodoServiceImpl implements TodoService
     }
 
     @Override
-    public Todo findUseremailById(long id)
+    public Todo findTodoById(long id)
     {
         return todorepos.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Todo with id " + id + " Not Found!"));
@@ -74,7 +74,7 @@ public class TodoServiceImpl implements TodoService
         if (todorepos.findById(todoid)
             .isPresent())
         {
-            Todo todo = findUseremailById(todoid);
+            Todo todo = findTodoById(todoid);
             todo.setDescription(description.toLowerCase());
             return todorepos.save(todo);
         } else

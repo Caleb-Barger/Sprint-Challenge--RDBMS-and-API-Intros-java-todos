@@ -1,7 +1,9 @@
 package local.barge.todos.services;
 
+
 import local.barge.todos.models.User;
 import local.barge.todos.models.Todo;
+import local.barge.todos.repository.TodoRepository;
 import local.barge.todos.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,12 +27,13 @@ public class UserServiceImpl implements UserService
     @Autowired
     private UserRepository userrepos;
 
-    /**
-     * Connects this service to the Role table
-     */
+    @Autowired
+    private TodoService todoService;
+
 
     @Autowired
     private UserAuditing userAuditing;
+
 
     public User findUserById(long id) throws EntityNotFoundException
     {
@@ -89,10 +92,10 @@ public class UserServiceImpl implements UserService
             User oldUser = userrepos.findById(user.getUserid())
                 .orElseThrow(() -> new EntityNotFoundException("User id " + user.getUserid() + " not found!"));
 
-            // delete todos for the old user
-            for (UserRoles ut : oldUser.getTodos())
+            // delete roles for the old user
+            for (Todo t : oldUser.getTodos())
             {
-                deleteUserRole(ut.getUser().getUserid(), ut.getRole().getRoleid());
+                deleteUserTodo(t.getUser().getUserid(), t.getTodoid());
             }
             newUser.setUserid(user.getUserid());
         }
@@ -107,29 +110,29 @@ public class UserServiceImpl implements UserService
             .clear();
         if (user.getUserid() == 0)
         {
-            for (UserRoles r : user.getTodos())
+            for (Todo t : user.getTodos())
             {
-                Role newRole = roleService.findRoleById(r.getRole()
-                                                                .getRoleid());
+                Todo newTodo = todoService.findTodoById(t.getTodoid());
 
-                newUser.addRole(newRole);
-            }
-        } else
-        {
-            for (UserRoles ut : user.getTodos())
-            {
-                addUserRole(ut.getUser().getUserid(), ut.getRole().getRoleid());
+                newUser.addTodo(newTodo);
             }
         }
+//        else
+//        {
+//            for (Todo t : user.getTodos())
+//            {
+//                addUserRole(ur.getUser().getUserid(), ur.getRole().getRoleid());
+//            }
+//        }
 
-        newUser.getUseremails()
-            .clear();
-        for (Useremail ue : user.getUseremails())
-        {
-            newUser.getUseremails()
-                .add(new Useremail(newUser,
-                    ue.getUseremail()));
-        }
+//        newUser.getUseremails()
+//            .clear();
+//        for (Useremail ue : user.getUseremails())
+//        {
+//            newUser.getUseremails()
+//                .add(new Useremail(newUser,
+//                    ue.getUseremail()));
+//        }
 
         return userrepos.save(newUser);
     }
@@ -159,82 +162,82 @@ public class UserServiceImpl implements UserService
                 .toLowerCase());
         }
 
+//        if (user.getRoles()
+//            .size() > 0)
+//        {
+//            // delete the roles for the old user we are replacing
+//            for (UserRoles ur : currentUser.getRoles())
+//            {
+//                deleteUserRole(ur.getUser()
+//                                       .getUserid(),
+//                               ur.getRole()
+//                                       .getRoleid());
+//            }
+//
+//            // add the new roles for the user we are replacing
+//            for (UserRoles ur : user.getRoles())
+//            {
+//                addUserRole(currentUser.getUserid(),
+//                            ur.getRole()
+//                                    .getRoleid());
+//            }
+//        }
+
         if (user.getTodos()
             .size() > 0)
         {
-            // delete the roles for the old user we are replacing
-            for (UserRoles ut : currentUser.getTodos())
-            {
-                deleteUserRole(ut.getUser()
-                                       .getUserid(),
-                               ut.getRole()
-                                       .getRoleid());
-            }
-
-            // add the new roles for the user we are replacing
-            for (UserRoles ut : user.getTodos())
-            {
-                addUserRole(currentUser.getUserid(),
-                            ut.getRole()
-                                    .getRoleid());
-            }
-        }
-
-        if (user.getUseremails()
-            .size() > 0)
-        {
-            currentUser.getUseremails()
+            currentUser.getTodos()
                 .clear();
-            for (Useremail ue : user.getUseremails())
+            for (Todo t : user.getTodos())
             {
-                currentUser.getUseremails()
-                    .add(new Useremail(currentUser,
-                        ue.getUseremail()));
+                currentUser.getTodos()
+                    .add(new Todo(currentUser,
+                        t.getDescription()));
             }
         }
 
         return userrepos.save(currentUser);
     }
 
-//    @Transactional
-//    @Override
-//    public void deleteUserRole(long userid, long roleid)
-//    {
-//        userrepos.findById(userid)
-//                .orElseThrow(() -> new EntityNotFoundException("User id " + userid + " Not found"));
-//
-//        roleService.findRoleById(roleid);
-//
-//        if (userrepos.checkUserRolesCombo(userid, roleid).getCount() > 0)
-//        {
-//            userrepos.deleteUserRoles(userid, roleid);
-//        } else
-//        {
-//            throw new EntityNotFoundException("Role and User Combination Does not exits");
-//        }
-//    }
+    @Transactional
+    @Override
+    public void deleteUserTodo(long userid, long todoid)
+    {
+        userrepos.findById(userid)
+                .orElseThrow(() -> new EntityNotFoundException("User id " + userid + " Not found"));
 
-//    @Transactional
-//    @Override
-//    public void addUserRole(
-//            long userid,
-//            long roleid)
-//    {
-//        userrepos.findById(userid)
-//                .orElseThrow(() -> new EntityNotFoundException("User id " + userid + " not found!"));
-//        roleService.findRoleById(roleid);
-//
-//        if (userrepos.checkUserRolesCombo(userid,
-//                                          roleid)
-//                .getCount() <= 0)
-//        {
-//            userrepos.insertUserRoles(userAuditing.getCurrentAuditor()
-//                                              .get(),
-//                                      userid,
-//                                      roleid);
-//        } else
-//        {
-//            throw new EntityExistsException("Role and User Combination Already Exists");
-//        }
-//    }
+        todoService.findTodoById(todoid);
+
+        if (userrepos.checkUserTodosCompleted(userid, todoid).getCount() > 0)
+        {
+            userrepos.deleteUserRoles(userid, todoid);
+        } else
+        {
+            throw new EntityNotFoundException("Role and User Combination Does not exits");
+        }
+    }
+
+    @Transactional
+    @Override
+    public void addUserTodo(
+            long userid,
+            long todoid)
+    {
+        userrepos.findById(userid)
+                .orElseThrow(() -> new EntityNotFoundException("User id " + userid + " not found!"));
+        todoService.findTodoById(todoid);
+
+        if (userrepos.checkUserTodosCompleted(userid,
+                                          todoid)
+                .getCount() <= 0)
+        {
+            userrepos.insertUserRoles(userAuditing.getCurrentAuditor()
+                                              .get(),
+                                      userid,
+                                      todoid);
+        } else
+        {
+            throw new EntityExistsException("Role and User Combination Already Exists");
+        }
+    }
 }

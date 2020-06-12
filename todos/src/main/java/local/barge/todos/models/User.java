@@ -205,8 +205,8 @@ public class User extends Auditable
 //        this.roles = roles;
 //    }
 //
-//    public void addRole(Role role)
-//    {
-//        roles.add(new UserRoles(this, role));
-//    }
+    public void addTodo(Todo todo)
+    {
+        todos.add(todo);
+    }
 }
