@@ -1,8 +1,8 @@
-package com.lambdaschool.todos;
+package local.barge.todos;
 
-import com.lambdaschool.todos.models.Todos;
-import com.lambdaschool.todos.models.User;
-import com.lambdaschool.todos.services.UserService;
+import local.barge.todos.models.Todos;
+import local.barge.todos.models.User;
+import local.barge.todos.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
